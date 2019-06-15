@@ -16,6 +16,7 @@ class ReviewCatalogue:
     def pull_review_data(self):
         self.pull_review_content()
         self.pull_word_dict()
+        self.pull_review_metadata()
 
     def pull_review_content(self):
         self.review_content = self.interface.pull_music_review_text(self.uuid)
