@@ -1,4 +1,5 @@
-from keras.layers import Input, Embedding, Conv2D, MaxPool2D, Reshape
+from keras.layers import Input, Embedding, Conv2D, MaxPool2D
+from keras.backend import expand_dims
 
 class text_cnn_wide_and_deep:
 
@@ -14,14 +15,20 @@ class text_cnn_wide_and_deep:
 
         word_mat = Embedding(self.dict_size, 300, input_length=self.text_input_size)(input)
 
-        x_3d = Reshape(target_shape=(self.text_input_size, 300, ))(word_mat)
+        x_3d = expand_dims(word_mat, 3)
         conv_layers = []
 
         for i in range(len(self.ngram_filters)):
-            x = Conv2D(filters=300, kernel_size=(self.ngram_filters[i], 300), strides=(1, ))(x_3d)
+            x = Conv2D(filters=300, kernel_size=(self.ngram_filters[i], 300), strides=(1, 300))(x_3d)
+            #<tf.Tensor 'conv2d_5/BiasAdd:0' shape=(?, 96, 1, 300) dtype=float32>
+            #TODO add max pooling
+            x = MaxPool2D()(x)
+            conv_layers.append(x)
 
-            x = MaxPool2D()
-            conv_layers.append()
-        x = Conv2D(self.ngram_filters, )
+        #TODO concat layers together
+        #TODO add dense layer to get size down to 100, 1
+        # TODO concat meta data
 
+
+        #TODO add softmax layer
 
