@@ -7,9 +7,11 @@ class TextCNNWideAndDeep:
     def __init__(self, text_input_size, embedding_mat, wide_feature_num, ngram_filters=[3, 4, 5]):
         self.text_input_size = text_input_size
         self.ngram_filters = ngram_filters
-        self.model = None
         self.embedding_mat = embedding_mat
         self.wide_feature_num = wide_feature_num
+
+        self.model=None
+        self.build_model()
 
     def build_model(self):
         inputs = Input(shape=(self.text_input_size,))
