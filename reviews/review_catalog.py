@@ -1,17 +1,32 @@
-from interfaces.sqllite_interface import music_review_interface
+from interfaces.sqllite_interface import MusicReviewInterface
+from interfaces.word_vec_interface import WordVecInterface
+from keras.utils import to_categorical
+import numpy as np
 
 
 class ReviewCatalogue:
 
     def __init__(self):
-        self.interface = music_review_interface()
+        self.interface = MusicReviewInterface()
+        self.w2v_interface = WordVecInterface()
         self.uuid = self.interface.get_latest_uuid()
         self.review_content = None
         self.word_dict = None
         self.review_metadata = None
+        self.word_mat = None
+        self.review_ids = None
+        self.content_mat = []
+        self.y = []
+        self.one_hot_lus = {}
+        self.metadata_mat = []
 
     def preprocess_reviews(self):
         self.pull_review_data()
+        self.create_word_mat()
+        self.get_review_ids()
+        self.get_outcome()
+        self.create_content_mat()
+        self.create_metadata_mat()
 
     def pull_review_data(self):
         self.pull_review_content()
@@ -26,3 +41,67 @@ class ReviewCatalogue:
 
     def pull_review_metadata(self):
         self.review_metadata = self.interface.pull_review_metadata(self.uuid)
+
+    def create_word_mat(self):
+        self.word_mat = self.w2v_interface.load_vecs_for_dict(self.word_dict)
+
+    def get_review_ids(self):
+        self.review_ids = [i for i in self.review_metadata]
+
+    def get_outcome(self):
+        for i in self.review_ids:
+            self.y.append(self.review_metadata[i]['score'])
+
+        self.y = [int(i > np.mean(self.y)) for i in self.y]
+
+    def create_content_mat(self, max_len_quantile=0.99):
+
+        max_len = int(np.quantile([len(i) for i in self.review_content.values()], max_len_quantile))
+
+        for i in self.review_ids:
+            vec = self.review_content[i]
+            if len(vec) >= max_len:
+                start_position = len(vec) - max_len
+                vec = vec[start_position:]
+            else:
+                [vec.append(0) for i in range(max_len - len(vec))]
+
+            self.content_mat.append(vec)
+
+        self.content_mat = np.array(self.content_mat)
+
+    def create_metadata_mat(self):
+        # deal with strings
+        strings = ['author_type', 'genre']
+        data = []
+
+        for i in strings:
+            l = []
+            for j in self.review_ids:
+                l.append(self.review_metadata[j][i])
+
+            self.one_hot_lus[i], mat = self.get_onehot(l)
+            data.append(mat)
+
+        # deal with nums
+        metadata_mat = []
+        for i in self.review_ids:
+            to_add = self.review_metadata[i]
+            metadata_mat.append([to_add['pub_month'],
+                                 to_add['pub_weekday'],
+                                 to_add['year'],
+                                 to_add['pub_year'],
+                                 to_add['pub_day']])
+
+        metadata_mat = np.array(metadata_mat)
+        data.append(metadata_mat)
+        self.metadata_mat = np.concatenate(data, axis=1)
+
+    @staticmethod
+    def get_onehot(l):
+        lu = dict((c, i) for i, c in enumerate(list(set(l))))
+        o = []
+        for i in l:
+            o.append(lu[i])
+        o = to_categorical(o)
+        return lu, o
