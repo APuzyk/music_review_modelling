@@ -1,34 +1,45 @@
-from keras.layers import Input, Embedding, Conv2D, MaxPool2D
-from keras.backend import expand_dims
+from keras.layers import Input, Embedding, Conv2D, MaxPooling2D, Reshape, Flatten, Dense, Concatenate
+from keras import Model
 
-class text_cnn_wide_and_deep:
 
-    def __init__(self, text_input_size, ngram_filters=[3, 4. 5], dict_size):
+class TextCNNWideAndDeep:
+
+    def __init__(self, text_input_size, embedding_mat, wide_feature_num, ngram_filters=[3, 4, 5]):
         self.text_input_size = text_input_size
         self.ngram_filters = ngram_filters
         self.model = None
-        self.dict_size = dict_size
+        self.embedding_mat = embedding_mat
+        self.wide_feature_num = wide_feature_num
 
-    def model(self):
+    def build_model(self):
+        inputs = Input(shape=(self.text_input_size,))
 
-        input = Input(self.text_input_size)
+        word_mat = Embedding(self.embedding_mat.shape[0],
+                             self.embedding_mat.shape[1],
+                             weights=[self.embedding_mat],
+                             input_length=(self.text_input_size,), trainable=False)(inputs)
 
-        word_mat = Embedding(self.dict_size, 300, input_length=self.text_input_size)(input)
-
-        x_3d = expand_dims(word_mat, 3)
+        x_3d = Reshape(target_shape=(100, 300, 1))(word_mat)
         conv_layers = []
 
-        for i in range(len(self.ngram_filters)):
-            x = Conv2D(filters=300, kernel_size=(self.ngram_filters[i], 300), strides=(1, 300))(x_3d)
-            #<tf.Tensor 'conv2d_5/BiasAdd:0' shape=(?, 96, 1, 300) dtype=float32>
-            #TODO add max pooling
-            x = MaxPool2D()(x)
+        for i in self.ngram_filters:
+            x = Conv2D(filters=300, kernel_size=(i, 300), strides=(1, 300))(x_3d)
+            x = Reshape((int(x.shape[1]), 300, 1))(x)
+            x = MaxPooling2D(strides=(300, 1))(x)
+            x = Flatten()(x)
             conv_layers.append(x)
 
-        #TODO concat layers together
-        #TODO add dense layer to get size down to 100, 1
-        # TODO concat meta data
+        x = Concatenate()(conv_layers)
 
+        x = Dense(100)(x)
 
-        #TODO add softmax layer
+        wide_data = Input(shape=(100,))
 
+        all_data = Concatenate()([x, wide_data])
+
+        predictions = Dense(2, activation='softmax')(all_data)
+
+        model = Model(inputs=[inputs, wide_data], outputs=predictions)
+
+        model.compile(optimizer="adam", loss='categorical_crossentropy')
+        self.model = model
