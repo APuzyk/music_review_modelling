@@ -28,7 +28,7 @@ class MusicReviewInterface:
         return self.get_query_results(query)[0][0]
 
     def pull_music_review_text(self, uuid):
-        query = "SELECT reviewid, contentVec FROM prepared_reviews WHERE uuid = '%s' limit 100" % uuid
+        query = "SELECT reviewid, contentVec FROM prepared_reviews WHERE uuid = '%s'" % uuid
         l = self.get_query_results(query)
         o = {}
         for i in l:
@@ -67,8 +67,6 @@ class MusicReviewInterface:
                         prepared_reviews
                     WHERE
                         uuid = '{uuid}'
-                    LIMIT
-                        100
                     """.format(columns=','.join(columns),
                                uuid=uuid)
         l = self.get_query_results(query)
