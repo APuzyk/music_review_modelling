@@ -7,13 +7,13 @@ class ModelFactory:
         self.params = params
 
     def build_model(self):
-        if self.model_type == 'TextCnnWideAndDeep':
+        if self.model_type == 'TextCNNWideAndDeep':
             model = TextCNNWideAndDeep(text_input_size=self.params['content_mat'].shape[1],
                                        embedding_mat=self.params['embedding_mat'],
                                        wide_feature_num=self.params['wide_features'].shape[1],
                                        ngram_filters=self.params['ngram_filters'])
         else:
-            raise NotImplemented("Models of type %s are not yet implemented" % self.model_type)
+            raise NotImplementedError("Models of type %s are not yet implemented" % self.model_type)
 
         return model
 

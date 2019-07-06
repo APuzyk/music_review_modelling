@@ -1,4 +1,4 @@
-from keras.layers import Input, Embedding, Conv2D, MaxPooling2D, Reshape, Flatten, Dense, Concatenate,Dropout
+from keras.layers import Input, Embedding, Conv2D, MaxPooling2D, Reshape, Flatten, Dense, Concatenate, Dropout
 from keras import Model
 
 
@@ -47,3 +47,12 @@ class TextCNNWideAndDeep:
 
         model.compile(optimizer="adam", loss='categorical_crossentropy')
         self.model = model
+
+    def train_model(self, text, wide_data, y, epochs=10, validation_split=0.2):
+        self.model.fit([text, wide_data],
+                       y,
+                       epochs=epochs,
+                       validation_split=validation_split)
+
+    def predict(self, text, wide_data):
+        return self.model.predict([text, wide_data])

@@ -2,6 +2,7 @@ from interfaces.sqllite_interface import MusicReviewInterface
 from interfaces.word_vec_interface import WordVecInterface
 from keras.utils import to_categorical
 import numpy as np
+import random
 
 
 class ReviewCatalogue:
@@ -19,6 +20,7 @@ class ReviewCatalogue:
         self.y = []
         self.one_hot_lus = {}
         self.metadata_mat = []
+        self.training_indices = {}
 
     def preprocess_reviews(self):
         self.pull_review_data()
@@ -27,6 +29,7 @@ class ReviewCatalogue:
         self.get_outcome()
         self.create_content_mat()
         self.create_metadata_mat()
+        self.split_data()
 
     def pull_review_data(self):
         self.pull_review_content()
@@ -53,6 +56,7 @@ class ReviewCatalogue:
             self.y.append(self.review_metadata[i]['score'])
 
         self.y = [int(i > np.mean(self.y)) for i in self.y]
+        self.y = to_categorical(self.y)
 
     def create_content_mat(self, max_len_quantile=0.99):
 
@@ -105,3 +109,31 @@ class ReviewCatalogue:
             o.append(lu[i])
         o = to_categorical(o)
         return lu, o
+
+    def split_data(self):
+        assert(self.metadata_mat.shape[0] == self.content_mat.shape[0])
+        assert(self.metadata_mat.shape[0] == self.y.shape[0])
+
+        n = self.metadata_mat.shape[0]
+
+        self.training_indices['train'] = random.sample(range(n), int(n*0.8))
+        self.training_indices['holdout'] = [i for i in range(n) if i not in self.training_indices['train']]
+
+    def get_train_metadata(self):
+        return self.metadata_mat[self.training_indices['train'], :]
+
+    def get_holdout_metadata(self):
+        return self.metadata_mat[self.training_indices['holdout'], :]
+
+    def get_train_content(self):
+        return self.content_mat[self.training_indices['train'], :]
+
+    def get_holdout_content(self):
+        return self.content_mat[self.training_indices['holdout'], :]
+
+    def get_train_y(self):
+        return self.y[self.training_indices['train'], :]
+
+    def get_holdout_y(self):
+        return self.y[self.training_indices['holdout'], :]
+
