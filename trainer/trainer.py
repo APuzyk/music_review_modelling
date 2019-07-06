@@ -1,12 +1,14 @@
 from reviews.review_catalog import ReviewCatalogue
 from models.model_factory import ModelFactory
+from trainer.trainer_config import TrainerConfig
 import os
 
 
 class Trainer:
 
-    def __init__(self):
-        self.review_catalogue = ReviewCatalogue()
+    def __init__(self, config):
+        self.config = TrainerConfig(config)
+        self.review_catalogue = ReviewCatalogue(self.config.data_config)
         self.model = None
         self.train_y_hat = None
         self.train_y = None
@@ -18,7 +20,8 @@ class Trainer:
         mf = ModelFactory(params={'content_mat':self.review_catalogue.content_mat,
                                   'embedding_mat': self.review_catalogue.word_mat,
                                   'wide_features':self.review_catalogue.metadata_mat,
-                                  'ngram_filters': [2, 3, 4]})
+                                  'ngram_filters': self.config.model_config.ngram_filters},
+                          model_type=self.config.model_config.model_type)
 
         self.model = mf.build_model()
 
@@ -27,7 +30,7 @@ class Trainer:
                                self.review_catalogue.get_train_y())
 
         self.get_predictions()
-        self.save_predictions()
+        self.save_predictions(self.data_dir)
 
     def get_predictions(self):
         self.train_y = self.review_catalogue.get_train_y()[:, 1].tolist()
@@ -39,7 +42,7 @@ class Trainer:
         self.holdout_y_hat = self.model.predict(self.review_catalogue.get_holdout_content(),
                                                 self.review_catalogue.get_holdout_metadata()).tolist()
 
-    def save_predictions(self, dir='/home/apuzyk/Projects/music_reviews/data'):
+    def save_predictions(self, dir):
         train_file = os.path.join(dir, str(self.review_catalogue.uuid) + '_' + 'train_predictions.csv')
         holdout_file = os.path.join(dir, str(self.review_catalogue.uuid) + '_' + 'holdout_predictions.csv')
 

@@ -3,7 +3,7 @@ import numpy as np
 
 
 class WordVecInterface:
-    def __init__(self, loc='~/Projects/music_reviews/data/GoogleNews-vectors-negative300.bin'):
+    def __init__(self, loc):
         self.loc = loc
 
     def load_vecs_for_dict(self, word_dict):

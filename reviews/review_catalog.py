@@ -7,9 +7,9 @@ import random
 
 class ReviewCatalogue:
 
-    def __init__(self):
-        self.interface = MusicReviewInterface()
-        self.w2v_interface = WordVecInterface()
+    def __init__(self, config):
+        self.interface = MusicReviewInterface(c_type=config.music_review_type, loc=config.music_review_fn)
+        self.w2v_interface = WordVecInterface(loc=config.w2v_fn)
         self.uuid = self.interface.get_latest_uuid()
         self.review_content = None
         self.word_dict = None

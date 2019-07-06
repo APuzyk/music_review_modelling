@@ -3,7 +3,7 @@ import sqlite3
 
 class MusicReviewInterface:
 
-    def __init__(self, c_type='sqlite3', loc='/home/apuzyk/Projects/music_reviews/data/database.sqlite'):
+    def __init__(self, c_type, loc):
         self.type = c_type
         self.loc = loc
 
