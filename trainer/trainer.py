@@ -25,9 +25,7 @@ class Trainer:
 
         self.model = mf.build_model()
 
-        self.model.train_model(self.review_catalogue.get_train_content(),
-                               self.review_catalogue.get_train_metadata(),
-                               self.review_catalogue.get_train_y())
+        self.model.train_model(self.review_catalogue)
 
         self.get_predictions()
         self.save_predictions(self.config.data_dir)
@@ -36,11 +34,11 @@ class Trainer:
         self.train_y = self.review_catalogue.get_train_y()[:, 1].tolist()
         self.holdout_y = self.review_catalogue.get_holdout_y()[:, 1].tolist()
 
-        self.train_y_hat = self.model.predict(self.review_catalogue.get_train_content(),
-                                              self.review_catalogue.get_train_metadata()).tolist()
+        self.train_y_hat = self.model.predict([self.review_catalogue.get_train_content(),
+                                              self.review_catalogue.get_train_metadata()]).tolist()
 
-        self.holdout_y_hat = self.model.predict(self.review_catalogue.get_holdout_content(),
-                                                self.review_catalogue.get_holdout_metadata()).tolist()
+        self.holdout_y_hat = self.model.predict([self.review_catalogue.get_holdout_content(),
+                                                self.review_catalogue.get_holdout_metadata()]).tolist()
 
     def save_predictions(self, dir):
         train_file = os.path.join(dir, str(self.review_catalogue.uuid) + '_' + 'train_predictions.csv')

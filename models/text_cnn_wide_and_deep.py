@@ -1,15 +1,17 @@
 from keras.layers import Input, Embedding, Conv2D, MaxPooling2D, Reshape, Flatten, Dense, Concatenate, Dropout
 from keras import Model
+from keras.optimizers import Adam
 
 
-class TextCNN:
+class TextCNNWideAndDeep:
 
-    def __init__(self, text_input_size, embedding_mat, ngram_filters=[3, 4, 5]):
+    def __init__(self, text_input_size, embedding_mat, wide_feature_num, ngram_filters=[3, 4, 5]):
         self.text_input_size = text_input_size
         self.ngram_filters = ngram_filters
         self.embedding_mat = embedding_mat
+        self.wide_feature_num = wide_feature_num
 
-        self.model = None
+        self.model=None
         self.build_model()
 
     def build_model(self):
@@ -34,20 +36,26 @@ class TextCNN:
 
         x = Dense(100)(x)
 
-        x = Dropout(rate=0.2)(x)
+        wide_data = Input(shape=(self.wide_feature_num,))
 
-        predictions = Dense(2, activation='softmax')(x)
+        all_data = Concatenate()([x, wide_data])
 
-        model = Model(inputs=inputs, outputs=predictions)
+        all_data = Dropout(rate=0.2)(all_data)
 
-        model.compile(optimizer='adam', loss='categorical_crossentropy')
+        predictions = Dense(2, activation='softmax')(all_data)
+
+        model = Model(inputs=[inputs, wide_data], outputs=predictions)
+
+        adam = Adam(lr=0.005)
+
+        model.compile(optimizer=adam, loss='categorical_crossentropy')
         self.model = model
 
     def train_model(self, review_catalogue, epochs=10, validation_split=0.2):
-        self.model.fit(review_catalogue.get_train_content(),
+        self.model.fit([review_catalogue.get_train_content(), review_catalogue.get_train_metadata()],
                        review_catalogue.get_train_y(),
                        epochs=epochs,
                        validation_split=validation_split)
 
     def predict(self, predict_data):
-        return self.model.predict(predict_data[0])
+        return self.model.predict([predict_data[0], predict_data[1]])
