@@ -1,5 +1,6 @@
 from keras.layers import Input, Embedding, Conv2D, MaxPooling2D, Reshape, Flatten, Dense, Concatenate, Dropout
 from keras import Model
+from keras.optimizers import Adam
 
 
 class TextCNNWideAndDeep:
@@ -45,7 +46,9 @@ class TextCNNWideAndDeep:
 
         model = Model(inputs=[inputs, wide_data], outputs=predictions)
 
-        model.compile(optimizer="adam", loss='categorical_crossentropy')
+        adam = Adam(lr=0.005)
+
+        model.compile(optimizer=adam, loss='categorical_crossentropy')
         self.model = model
 
     def train_model(self, text, wide_data, y, epochs=10, validation_split=0.2):

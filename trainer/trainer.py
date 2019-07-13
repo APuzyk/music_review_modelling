@@ -30,7 +30,7 @@ class Trainer:
                                self.review_catalogue.get_train_y())
 
         self.get_predictions()
-        self.save_predictions(self.data_dir)
+        self.save_predictions(self.config.data_dir)
 
     def get_predictions(self):
         self.train_y = self.review_catalogue.get_train_y()[:, 1].tolist()
