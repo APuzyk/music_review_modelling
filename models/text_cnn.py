@@ -1,15 +1,18 @@
 from keras.layers import Input, Embedding, Conv2D, MaxPooling2D, Reshape, Flatten, Dense, Concatenate, Dropout
 from keras import Model
+from models.text_nn import TextNN
 
 
-class TextCNN:
+class TextCNN(TextNN):
 
     def __init__(self, text_input_size, embedding_mat, ngram_filters=[3, 4, 5]):
+        super(TextCNN, self).__init__()
+
         self.text_input_size = text_input_size
         self.ngram_filters = ngram_filters
         self.embedding_mat = embedding_mat
 
-        self.model = None
+        self.model_type = 'TextCNN'
         self.build_model()
 
     def build_model(self):

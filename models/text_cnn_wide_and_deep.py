@@ -1,17 +1,19 @@
 from keras.layers import Input, Embedding, Conv2D, MaxPooling2D, Reshape, Flatten, Dense, Concatenate, Dropout
 from keras import Model
 from keras.optimizers import Adam
+from models.text_nn import TextNN
 
 
-class TextCNNWideAndDeep:
+class TextCNNWideAndDeep(TextNN):
 
     def __init__(self, text_input_size, embedding_mat, wide_feature_num, ngram_filters=[3, 4, 5]):
+        super(TextCNNWideAndDeep, self).__init__()
         self.text_input_size = text_input_size
         self.ngram_filters = ngram_filters
         self.embedding_mat = embedding_mat
         self.wide_feature_num = wide_feature_num
 
-        self.model=None
+        self.model_type = 'TextCNNWideAndDeep'
         self.build_model()
 
     def build_model(self):
@@ -50,12 +52,3 @@ class TextCNNWideAndDeep:
 
         model.compile(optimizer=adam, loss='categorical_crossentropy')
         self.model = model
-
-    def train_model(self, review_catalogue, epochs=10, validation_split=0.2):
-        self.model.fit([review_catalogue.get_train_content(), review_catalogue.get_train_metadata()],
-                       review_catalogue.get_train_y(),
-                       epochs=epochs,
-                       validation_split=validation_split)
-
-    def predict(self, predict_data):
-        return self.model.predict([predict_data[0], predict_data[1]])
