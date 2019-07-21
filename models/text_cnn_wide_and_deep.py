@@ -39,6 +39,7 @@ class TextCNNWideAndDeep(TextNN):
         x = Dense(100)(x)
 
         wide_data = Input(shape=(self.wide_feature_num,))
+        wide_data = Dense(50)(wide_data)
 
         all_data = Concatenate()([x, wide_data])
 

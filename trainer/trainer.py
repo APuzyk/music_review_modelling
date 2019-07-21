@@ -1,6 +1,8 @@
 from reviews.review_catalog import ReviewCatalogue
 from models.model_factory import ModelFactory
 from trainer.trainer_config import TrainerConfig
+from sklearn.metrics import auc, precision_recall_curve
+from helpers.helpers import sort_l_x_by_l_y
 import os
 
 
@@ -51,6 +53,11 @@ class Trainer:
                     'holdout_features': self.review_catalogue.get_holdout_content()}
         else:
             raise NotImplementedError("Model type {} not implemented".format(self.model.model_type))
+
+    def get_performance_data(self):
+        
+        train_auc = auc(sorted(self.train_y_hat), sort_l_x_by_l_y(self.train_y, self.train_y_hat))
+        holdout_auc = auc(sorted(self.holdout_y_hat), sort_l_x_by_l_y(self.holdout_y, self.holdout_y_hat))
 
     def save_predictions(self, dir):
         train_file = os.path.join(dir, str(self.review_catalogue.uuid) + '_' + 'train_predictions.csv')
