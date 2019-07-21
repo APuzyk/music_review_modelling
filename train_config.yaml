@@ -6,7 +6,7 @@ data_config:
 model_config:
  holdout_split: 0.2
  val_split: 0.2
- model_type: TextCNN
+ model_type: TextCNNWideAndDeep
  ngram_filters:
   - 2
   - 3

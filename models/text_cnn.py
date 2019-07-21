@@ -45,12 +45,3 @@ class TextCNN(TextNN):
 
         model.compile(optimizer='adam', loss='categorical_crossentropy')
         self.model = model
-
-    def train_model(self, review_catalogue, epochs=10, validation_split=0.2):
-        self.model.fit(review_catalogue.get_train_content(),
-                       review_catalogue.get_train_y(),
-                       epochs=epochs,
-                       validation_split=validation_split)
-
-    def predict(self, predict_data):
-        return self.model.predict(predict_data[0])
