@@ -47,9 +47,9 @@ class Trainer:
         with open(train_file, 'w+') as f:
             f.write('y,y_hat\n')
             for i in range(len(self.train_y_hat)):
-                f.write(str(self.train_y[i]) + ',' + str(self.train_y_hat[i]) + '\n')
+                f.write(str(self.train_y[i]) + ',' + str(self.train_y_hat[i][1]) + '\n')
 
         with open(holdout_file, 'w+') as f:
             f.write('y,y_hat\n')
             for i in range(len(self.holdout_y_hat)):
-                f.write(str(self.holdout_y[i]) + ',' + str(self.holdout_y_hat[i]) + '\n')
+                f.write(str(self.holdout_y[i]) + ',' + str(self.holdout_y_hat[i][1]) + '\n')
