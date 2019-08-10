@@ -39,7 +39,7 @@ class TextCNNWideAndDeep(TextNN):
         x = Dense(100)(x)
 
         wide_input = Input(shape=(self.wide_feature_num,))
-        wide_data = Dense(50)(wide_input)
+        wide_data = Dense(15)(wide_input)
 
         all_data = Concatenate()([x, wide_data])
 
@@ -49,7 +49,5 @@ class TextCNNWideAndDeep(TextNN):
 
         model = Model(inputs=[inputs, wide_input], outputs=predictions)
 
-        adam = Adam(lr=0.005)
-
-        model.compile(optimizer=adam, loss='categorical_crossentropy')
+        model.compile(optimizer='adam', loss='categorical_crossentropy')
         self.model = model
