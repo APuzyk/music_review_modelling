@@ -8,14 +8,15 @@ import os
 
 class Trainer:
 
-    def __init__(self, config):
-        self.config = TrainerConfig(config)
+    def __init__(self, config, is_test=False):
+        self.config = TrainerConfig(config, is_test)
         self.review_catalogue = ReviewCatalogue(self.config.data_config)
         self.model = None
         self.train_y_hat = None
         self.train_y = None
         self.holdout_y_hat = None
         self.holdout_y = None
+        self.performance_data = {}
 
     def train_model(self):
         self.review_catalogue.preprocess_reviews()
@@ -23,15 +24,17 @@ class Trainer:
                                   'embedding_mat': self.review_catalogue.word_mat,
                                   'wide_features':self.review_catalogue.metadata_mat,
                                   'ngram_filters': self.config.model_config.ngram_filters},
-                          model_type=self.config.model_config.model_type)
+                          model_config=self.config.model_config)
 
         self.model = mf.build_model()
 
         self.model.train_model(self.get_feature_data()['train_features'],
-                               self.review_catalogue.get_train_y())
+                               self.review_catalogue.get_train_y(),
+                               self.config.model_config.is_test)
 
         self.get_predictions()
         self.save_predictions(self.config.data_dir)
+        self.get_performance_data()
 
     def get_predictions(self):
         self.train_y = self.review_catalogue.get_train_y()[:, 1].tolist()
@@ -55,9 +58,24 @@ class Trainer:
             raise NotImplementedError("Model type {} not implemented".format(self.model.model_type))
 
     def get_performance_data(self):
-        
-        train_auc = auc(sorted(self.train_y_hat), sort_l_x_by_l_y(self.train_y, self.train_y_hat))
-        holdout_auc = auc(sorted(self.holdout_y_hat), sort_l_x_by_l_y(self.holdout_y, self.holdout_y_hat))
+        train_y_hat = self.get_pos_values(self.train_y_hat)
+        train_y = self.train_y
+        holdout_y_hat = self.get_pos_values(self.holdout_y_hat)
+        holdout_y = self.holdout_y
+        self.performance_data['auc_train'] = auc(sorted(train_y_hat),
+                                                 sort_l_x_by_l_y(train_y,
+                                                                 train_y_hat))
+
+        self.performance_data['auc_holdout'] = auc(sorted(holdout_y_hat),
+                                                   sort_l_x_by_l_y(holdout_y,
+                                                                   holdout_y_hat))
+
+        self.performance_data['p_r_curve_train'] = precision_recall_curve(train_y, train_y_hat)
+        self.performance_data['p_r_curve_holdout'] = precision_recall_curve(holdout_y, holdout_y_hat)
+
+    @staticmethod
+    def get_pos_values(l):
+        return [i[1] for i in l]
 
     def save_predictions(self, dir):
         train_file = os.path.join(dir, str(self.review_catalogue.uuid) + '_' + 'train_predictions.csv')

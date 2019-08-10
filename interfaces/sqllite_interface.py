@@ -27,8 +27,9 @@ class MusicReviewInterface:
                     """
         return self.get_query_results(query)[0][0]
 
-    def pull_music_review_text(self, uuid):
+    def pull_music_review_text(self, uuid, is_test):
         query = "SELECT reviewid, contentVec FROM prepared_reviews WHERE uuid = '%s'" % uuid
+        query = query + ' limit 500' if is_test else query
         l = self.get_query_results(query)
         o = {}
         for i in l:
@@ -44,7 +45,7 @@ class MusicReviewInterface:
 
         return o
 
-    def pull_review_metadata(self, uuid):
+    def pull_review_metadata(self, uuid, is_test):
         columns = ['reviewid',
                     'artist',
                     'genre',
@@ -69,6 +70,7 @@ class MusicReviewInterface:
                         uuid = '{uuid}'
                     """.format(columns=','.join(columns),
                                uuid=uuid)
+        query = query + ' limit 500' if is_test else query
         l = self.get_query_results(query)
         l = [list(i) for i in l]
         o = {}

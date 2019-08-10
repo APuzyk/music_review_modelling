@@ -6,7 +6,9 @@ class TextNN:
     def build_model(self, params):
         pass
 
-    def train_model(self, train_features, train_y, epochs=10, validation_split=0.2):
+    def train_model(self, train_features, train_y, is_test, epochs=10, validation_split=0.2):
+        if is_test:
+            epochs = 1
         self.model.fit(train_features,
                        train_y,
                        epochs=epochs,

@@ -38,8 +38,8 @@ class TextCNNWideAndDeep(TextNN):
 
         x = Dense(100)(x)
 
-        wide_data = Input(shape=(self.wide_feature_num,))
-        wide_data = Dense(50)(wide_data)
+        wide_input = Input(shape=(self.wide_feature_num,))
+        wide_data = Dense(50)(wide_input)
 
         all_data = Concatenate()([x, wide_data])
 
@@ -47,7 +47,7 @@ class TextCNNWideAndDeep(TextNN):
 
         predictions = Dense(2, activation='softmax')(all_data)
 
-        model = Model(inputs=[inputs, wide_data], outputs=predictions)
+        model = Model(inputs=[inputs, wide_input], outputs=predictions)
 
         adam = Adam(lr=0.005)
 

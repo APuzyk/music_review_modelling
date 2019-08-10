@@ -3,8 +3,8 @@ from models.text_cnn import TextCNN
 
 
 class ModelFactory:
-    def __init__(self, params, model_type='TextCNNWideAndDeep'):
-        self.model_type = model_type
+    def __init__(self, params, model_config):
+        self.model_type = model_config.model_type
         self.params = params
 
     def build_model(self):

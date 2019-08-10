@@ -8,6 +8,7 @@ import random
 class ReviewCatalogue:
 
     def __init__(self, config):
+        self.is_test = config.is_test
         self.interface = MusicReviewInterface(c_type=config.music_review_type, loc=config.music_review_fn)
         self.w2v_interface = WordVecInterface(loc=config.w2v_fn)
         self.uuid = self.interface.get_latest_uuid()
@@ -37,13 +38,13 @@ class ReviewCatalogue:
         self.pull_review_metadata()
 
     def pull_review_content(self):
-        self.review_content = self.interface.pull_music_review_text(self.uuid)
+        self.review_content = self.interface.pull_music_review_text(self.uuid, self.is_test)
 
     def pull_word_dict(self):
         self.word_dict = self.interface.pull_word_dict(self.uuid)
 
     def pull_review_metadata(self):
-        self.review_metadata = self.interface.pull_review_metadata(self.uuid)
+        self.review_metadata = self.interface.pull_review_metadata(self.uuid, self.is_test)
 
     def create_word_mat(self):
         self.word_mat = self.w2v_interface.load_vecs_for_dict(self.word_dict)
