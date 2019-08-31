@@ -52,9 +52,12 @@ class Trainer:
                                        self.review_catalogue.get_train_metadata()],
                     'holdout_features': [self.review_catalogue.get_holdout_content(),
                                          self.review_catalogue.get_holdout_metadata()]}
-        elif self.model.model_type == "TextCNN":
+        elif self.model.model_type in ("TextCNN", "TextLSTM"):
             return {'train_features': self.review_catalogue.get_train_content(),
                     'holdout_features': self.review_catalogue.get_holdout_content()}
+        elif self.model.model_type == "TextSNN":
+            return {'train_features': self.review_catalogue.get_train_metadata(),
+                    'holdout_features': self.review_catalogue.get_holdout_metadata()}
         else:
             raise NotImplementedError("Model type {} not implemented".format(self.model.model_type))
 
