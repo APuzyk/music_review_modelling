@@ -11,7 +11,7 @@ class TextNN:
 
     def train_model(self, train_features, train_y, is_test, log_dir, epochs=10, validation_split=0.2):
         if is_test:
-            epochs = 1
+            epochs = 5
 
         tensorboard = TensorBoard(log_dir=log_dir + "/{}".format(int(time())))
 

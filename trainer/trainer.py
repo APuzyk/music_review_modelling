@@ -31,7 +31,7 @@ class Trainer:
         self.model.train_model(self.get_feature_data()['train_features'],
                                self.review_catalogue.get_train_y(),
                                self.config.model_config.is_test,
-                               self.config.data_dir)
+                               self.config.data_dir + "/logs")
 
         self.get_predictions()
         self.save_predictions(self.config.data_dir)
