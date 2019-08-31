@@ -49,5 +49,6 @@ class TextCNNWideAndDeep(TextNN):
 
         model = Model(inputs=[inputs, wide_input], outputs=predictions)
 
-        model.compile(optimizer='adam', loss='categorical_crossentropy')
+        # adam = Adam(lr=0.01)
+        model.compile(optimizer='adadelta', loss='categorical_crossentropy')
         self.model = model
