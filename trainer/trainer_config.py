@@ -27,6 +27,11 @@ class TrainerConfig:
 
         self.base_dir = config['base_dir']
         self.data_dir = os.path.join(self.base_dir, 'data')
+        self.model_dir = os.path.join(self.base_dir, 'models')
+        self.log_dir = os.path.join(self.base_dir, 'logs')
         self.data_config = DataConfig(config['data_config'], self.data_dir, is_test)
         self.model_config = ModelConfig(config['model_config'], is_test)
 
+        for i in [self.base_dir, self.data_dir, self.model_dir, self.log_dir]:
+            if not os.path.isdir(i):
+                os.mkdir(i)
