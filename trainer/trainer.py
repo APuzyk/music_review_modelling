@@ -4,6 +4,7 @@ from trainer.trainer_config import TrainerConfig
 from sklearn.metrics import auc, precision_recall_curve
 from helpers.helpers import sort_l_x_by_l_y
 import os
+import json
 
 
 class Trainer:
@@ -74,8 +75,34 @@ class Trainer:
                                                    sort_l_x_by_l_y(holdout_y,
                                                                    holdout_y_hat))
 
-        self.performance_data['p_r_curve_train'] = precision_recall_curve(train_y, train_y_hat)
-        self.performance_data['p_r_curve_holdout'] = precision_recall_curve(holdout_y, holdout_y_hat)
+        self.performance_data['p_r_curve_train'] = self.create_p_r_dict(precision_recall_curve(train_y,
+                                                                                               train_y_hat))
+
+        self.performance_data['p_r_curve_holdout'] = self.create_p_r_dict(precision_recall_curve(holdout_y,
+                                                                                                 holdout_y_hat))
+
+        self.save_performance_data()
+
+    @staticmethod
+    def create_p_r_dict(prc):
+        o = dict()
+        o['precision'] = prc[0].tolist()
+        o['recall'] = prc[1].tolist()
+        o['threshold'] = prc[2].tolist()
+
+        return o
+
+    def save_performance_data(self):
+        for k, v in self.performance_data.items():
+            print("data for: " + k + "\n")
+            print("\t" + str(v))
+
+        o = json.dumps(self.performance_data)
+        f = open(self.config.data_dir + "/performance_{}.json".format(self.config.time_id), "w+")
+        f.write(o)
+        f.close()
+
+
 
     @staticmethod
     def get_pos_values(l):

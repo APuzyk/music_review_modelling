@@ -1,5 +1,6 @@
 import yaml
 import os
+from time import time
 
 
 class DataConfig:
@@ -26,6 +27,7 @@ class TrainerConfig:
             config = yaml.safe_load(f)
 
         self.base_dir = config['base_dir']
+        self.time_id = "".format(int(time()))
         self.data_dir = os.path.join(self.base_dir, 'data')
         self.model_dir = os.path.join(self.base_dir, 'models')
         self.log_dir = os.path.join(self.base_dir, 'logs')

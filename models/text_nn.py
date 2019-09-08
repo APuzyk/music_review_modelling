@@ -1,5 +1,4 @@
 from keras.callbacks import TensorBoard, ModelCheckpoint
-from time import time
 
 
 class TextNN:
@@ -13,7 +12,7 @@ class TextNN:
         if is_test:
             epochs = 5
 
-        model_time = "/{}".format(int(time()))
+        model_time = "/{}".format(config.time_id)
         tensorboard = TensorBoard(log_dir=config.log_dir + model_time)
         checkpoint = ModelCheckpoint(config.model_dir + model_time + '.hdf5', verbose=1, save_best_only=True)
 
