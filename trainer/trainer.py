@@ -102,8 +102,6 @@ class Trainer:
         f.write(o)
         f.close()
 
-
-
     @staticmethod
     def get_pos_values(l):
         return [i[1] for i in l]
