@@ -9,7 +9,7 @@ class TextNN:
     def build_model(self, params):
         pass
 
-    def train_model(self, train_features, train_y, is_test, log_dir, epochs=10, validation_split=0.2):
+    def train_model(self, train_features, train_y, is_test, log_dir, epochs=100, validation_split=0.2):
         if is_test:
             epochs = 5
 

@@ -11,3 +11,7 @@ def main():
     if args.training:
         t = Trainer(args.config, args.is_test)
         t.train_model()
+
+
+if __name__ == '__main__':
+    main()
