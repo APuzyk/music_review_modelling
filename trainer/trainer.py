@@ -25,6 +25,7 @@ class Trainer:
     def create_logger(self):
         # Create a custom logger
         self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
 
         # Create handlers
         c_handler = logging.StreamHandler()
