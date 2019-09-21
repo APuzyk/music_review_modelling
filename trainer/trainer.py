@@ -5,12 +5,15 @@ from sklearn.metrics import auc, precision_recall_curve
 from helpers.helpers import sort_l_x_by_l_y
 import os
 import json
+import logging
 
 
 class Trainer:
 
     def __init__(self, config, is_test=False):
         self.config = TrainerConfig(config, is_test)
+        self.logger = None
+        self.create_logger()
         self.review_catalogue = ReviewCatalogue(self.config.data_config)
         self.model = None
         self.train_y_hat = None
@@ -19,8 +22,30 @@ class Trainer:
         self.holdout_y = None
         self.performance_data = {}
 
+    def create_logger(self):
+        # Create a custom logger
+        self.logger = logging.getLogger(__name__)
+
+        # Create handlers
+        c_handler = logging.StreamHandler()
+        f_handler = logging.FileHandler(self.config.log_dir + "/log_" + self.config.time_id + ".log")
+        c_handler.setLevel(logging.INFO)
+        f_handler.setLevel(logging.ERROR)
+
+        # Create formatters and add it to handlers
+        c_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+        f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        c_handler.setFormatter(c_format)
+        f_handler.setFormatter(f_format)
+
+        # Add handlers to the logger
+        self.logger.addHandler(c_handler)
+        self.logger.addHandler(f_handler)
+
     def train_model(self):
-        self.review_catalogue.preprocess_reviews()
+        self.logger.info("Preprocessing reviews")
+        self.review_catalogue.preprocess_reviews(self.logger)
+        self.logger.info("Creating Model Object")
         mf = ModelFactory(params={'content_mat':self.review_catalogue.content_mat,
                                   'embedding_mat': self.review_catalogue.word_mat,
                                   'wide_features':self.review_catalogue.metadata_mat,

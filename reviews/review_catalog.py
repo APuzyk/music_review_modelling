@@ -23,13 +23,20 @@ class ReviewCatalogue:
         self.metadata_mat = []
         self.training_indices = {}
 
-    def preprocess_reviews(self):
+    def preprocess_reviews(self, logger):
+        logger.info("pulling review data")
         self.pull_review_data()
+        logger.info("creating_word_mat")
         self.create_word_mat()
+        logger.info("Getting_review_ids")
         self.get_review_ids()
+        logger.info("getting_outcome")
         self.get_outcome()
+        logger.info("creating content_mat")
         self.create_content_mat()
+        logger.info("creating_content_mat")
         self.create_metadata_mat()
+        logger.info("Splitting_data")
         self.split_data()
 
     def pull_review_data(self):

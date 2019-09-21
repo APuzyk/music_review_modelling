@@ -9,7 +9,8 @@ def main():
                         dest="train")
     parser.add_argument("--test", help="Is this being run for testing", type=bool, default=False, dest="test")
     args = parser.parse_args()
-    if args.training:
+
+    if args.train:
         t = Trainer(args.config, args.test)
         t.train_model()
 
