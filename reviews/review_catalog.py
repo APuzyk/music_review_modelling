@@ -3,11 +3,15 @@ from interfaces.word_vec_interface import WordVecInterface
 from keras.utils import to_categorical
 import numpy as np
 import random
+import logging
+
+module_logger = logging.getLogger(__name__)
 
 
 class ReviewCatalogue:
 
     def __init__(self, config):
+        self.logger = logging.getLogger(__name__)
         self.is_test = config.is_test
         self.interface = MusicReviewInterface(c_type=config.music_review_type, loc=config.music_review_fn)
         self.w2v_interface = WordVecInterface(loc=config.w2v_fn)
@@ -23,20 +27,20 @@ class ReviewCatalogue:
         self.metadata_mat = []
         self.training_indices = {}
 
-    def preprocess_reviews(self, logger):
-        logger.info("pulling review data")
+    def preprocess_reviews(self):
+        self.logger.info("pulling review data")
         self.pull_review_data()
-        logger.info("creating_word_mat")
+        self.logger.info("creating_word_mat")
         self.create_word_mat()
-        logger.info("Getting_review_ids")
+        self.logger.info("Getting_review_ids")
         self.get_review_ids()
-        logger.info("getting_outcome")
+        self.logger.info("getting_outcome")
         self.get_outcome()
-        logger.info("creating content_mat")
+        self.logger.info("creating content_mat")
         self.create_content_mat()
-        logger.info("creating_content_mat")
+        self.logger.info("creating_content_mat")
         self.create_metadata_mat()
-        logger.info("Splitting_data")
+        self.logger.info("Splitting_data")
         self.split_data()
 
     def pull_review_data(self):

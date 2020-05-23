@@ -21,13 +21,13 @@ class ModelConfig:
 
 
 class TrainerConfig:
-    def __init__(self, config, is_test):
+    def __init__(self, config, is_test, time_id="".format(int(time()))):
         self.is_test = is_test
         with open(config, 'r') as f:
             config = yaml.safe_load(f)
 
         self.base_dir = config['base_dir']
-        self.time_id = "".format(int(time()))
+        self.time_id = time_id
         self.data_dir = os.path.join(self.base_dir, 'data')
         self.model_dir = os.path.join(self.base_dir, 'models')
         self.log_dir = os.path.join(self.base_dir, 'logs')
