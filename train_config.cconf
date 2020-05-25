@@ -1,0 +1,16 @@
+{
+  "base_dir": "/home/apuzyk/Projects/music_reviews",
+  "data_config": 
+    {
+      "w2v_fn": "GoogleNews-vectors-negative300.bin",
+      "music_review_fn": "database.sqlite",
+      "music_review_type": "sqlite3"
+    },
+  "model_config": 
+    {
+      "holdout_split": 0.2, 
+      "val_split": 0.2, 
+      "model_type": "TextCNN", 
+      "ngram_filters": [2, 3, 4]
+    }
+}

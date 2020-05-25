@@ -1,4 +1,4 @@
-import yaml
+import json
 import os
 from time import time
 
@@ -24,7 +24,7 @@ class TrainerConfig:
     def __init__(self, config, is_test, time_id="".format(int(time()))):
         self.is_test = is_test
         with open(config, 'r') as f:
-            config = yaml.safe_load(f)
+            config = json.loads(f)
 
         self.base_dir = config['base_dir']
         self.time_id = time_id
