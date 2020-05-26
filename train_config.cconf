@@ -11,6 +11,8 @@
       "holdout_split": 0.2, 
       "val_split": 0.2, 
       "model_type": "TextCNN", 
-      "ngram_filters": [2, 3, 4]
+      "ngram_filters": [2, 3, 4],
+      "batch_size": 128,
+      "epochs": 1
     }
 }

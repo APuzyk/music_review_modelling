@@ -1,6 +1,5 @@
 import torch.nn as nn
-from torch import from_numpy, flatten, cat
-import torch.nn.functional as F
+from torch import from_numpy, flatten, cat, softmax
 from models.text_nn import TextNN
 
 
@@ -48,14 +47,14 @@ class TextCNN(TextNN):
         layers = []
         for i in self.ngram_filters:
             l = self.__getattr__(f"c2d_ngram_{i}")(x)
-            l = F.relu(l)
+            l = softmax(l)
             l = l.permute(0, 3, 1, 2)
             l = self.__getattr__(f"pool_ngram_{i}")(l)
             l = flatten(l, 1)
             layers.append(l)
         x = cat(layers, 1)
-        x = F.relu(self.fc1(x))
+        x = softmax(self.fc1(x))
         x = self.dropout(x)
-        x = F.relu(self.fc2(x))
+        x = softmax(self.fc2(x))
 
         return x

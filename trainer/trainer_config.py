@@ -17,6 +17,8 @@ class ModelConfig:
         self.holdout_split = config['holdout_split']
         self.model_type = config['model_type']
         self.ngram_filters = config['ngram_filters']
+        self.batch_size = config['batch_size']
+        self.epochs = config['epochs']
         self.is_test = is_test
 
 
@@ -24,7 +26,7 @@ class TrainerConfig:
     def __init__(self, config, is_test, time_id="".format(int(time()))):
         self.is_test = is_test
         with open(config, 'r') as f:
-            config = json.loads(f)
+            config = json.load(f)
 
         self.base_dir = config['base_dir']
         self.time_id = time_id

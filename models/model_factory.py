@@ -1,7 +1,7 @@
 from models.text_cnn_wide_and_deep import TextCNNWideAndDeep
 from models.text_cnn import TextCNN
-from models.text_snn import TextSNN
-from models.text_lstm import TextLSTM
+#from models.text_snn import TextSNN
+#from models.text_lstm import TextLSTM
 
 
 class ModelFactory:
@@ -20,11 +20,12 @@ class ModelFactory:
             model = TextCNN(text_input_size=self.params['content_mat'].shape[1],
                             embedding_mat=self.params['embedding_mat'],
                             ngram_filters=self.params['ngram_filters'])
-        elif self.model_type == 'TextSNN':
-            model = TextSNN(wide_feature_num=self.params['wide_features'].shape[1])
-        elif self.model_type == 'TextLSTM':
-            model = TextLSTM(text_input_size=self.params['content_mat'].shape[1],
-                             embedding_mat=self.params['embedding_mat'])
+        # elif self.model_type == 'TextSNN':
+        #     raise NotImplementedError
+        #     model = TextSNN(wide_feature_num=self.params['wide_features'].shape[1])
+        # elif self.model_type == 'TextLSTM':
+        #     model = TextLSTM(text_input_size=self.params['content_mat'].shape[1],
+        #                      embedding_mat=self.params['embedding_mat'])
         else:
             raise NotImplementedError("Models of type %s are not yet implemented" % self.model_type)
 

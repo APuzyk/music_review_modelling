@@ -1,6 +1,5 @@
 from interfaces.sqllite_interface import MusicReviewInterface
 from interfaces.word_vec_interface import WordVecInterface
-from keras.utils import to_categorical
 import numpy as np
 import random
 import logging
@@ -68,7 +67,7 @@ class ReviewCatalogue:
             self.y.append(self.review_metadata[i]['score'])
 
         self.y = [int(i > np.mean(self.y)) for i in self.y]
-        self.y = to_categorical(self.y)
+        self.y = np.array(self.y)
 
     def create_content_mat(self, max_len_quantile=0.99):
 
@@ -91,12 +90,12 @@ class ReviewCatalogue:
         strings = ['author_type', 'genre']
         data = []
 
-        for i in strings:
+        for string in strings:
             l = []
             for j in self.review_ids:
-                l.append(self.review_metadata[j][i])
+                l.append(self.review_metadata[j][string])
 
-            self.one_hot_lus[i], mat = self.get_onehot(l)
+            self.one_hot_lus[string], mat = self.get_onehot(l)
             data.append(mat)
 
         # deal with nums
@@ -116,11 +115,13 @@ class ReviewCatalogue:
     @staticmethod
     def get_onehot(l):
         lu = dict((c, i) for i, c in enumerate(list(set(l))))
-        o = []
+        string_indices = []
         for i in l:
-            o.append(lu[i])
-        o = to_categorical(o)
-        return lu, o
+            string_indices.append(lu[i])
+        string_indices = np.array(string_indices)
+        one_hot = np.zeros((string_indices.size, string_indices.max() + 1))
+        one_hot[np.arange(string_indices.size), string_indices] = 1
+        return lu, one_hot
 
     def split_data(self):
         assert(self.metadata_mat.shape[0] == self.content_mat.shape[0])
@@ -144,8 +145,8 @@ class ReviewCatalogue:
         return self.content_mat[self.training_indices['holdout'], :]
 
     def get_train_y(self):
-        return self.y[self.training_indices['train'], :]
+        return self.y[self.training_indices['train']]
 
     def get_holdout_y(self):
-        return self.y[self.training_indices['holdout'], :]
+        return self.y[self.training_indices['holdout']]
 
