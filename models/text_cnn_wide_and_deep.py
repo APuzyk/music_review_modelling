@@ -1,5 +1,5 @@
 import torch.nn as nn
-from torch import from_numpy, flatten, cat, softmax
+from torch import from_numpy, flatten, cat, tanh
 from models.text_nn import TextNN
 
 
@@ -52,16 +52,16 @@ class TextCNNWideAndDeep(TextNN):
         layers = []
         for i in self.ngram_filters:
             l = self.__getattr__(f"c2d_ngram_{i}")(x)
-            l = softmax(l)
+            l = tanh(l)
             l = l.permute(0, 3, 1, 2)
             l = self.__getattr__(f"pool_ngram_{i}")(l)
             l = flatten(l, 1)
             layers.append(l)
         x = cat(layers, 1)
-        x = softmax(self.fc1(x))
-        wide = softmax(self.fc1(wide))
+        x = tanh(self.fc1(x))
+        wide = tanh(self.fc1(wide))
         x = cat([x, wide])
         x = self.dropout(x)
-        x = softmax(self.fc2(x))
+        x = tanh(self.fc2(x))
 
         return x

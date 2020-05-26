@@ -21,10 +21,10 @@ class Trainer:
         self.config = config
         self.review_catalogue = ReviewCatalogue(self.config.data_config)
         self.model = None
-        self.train_y_hat = None
-        self.train_y = None
-        self.holdout_y_hat = None
-        self.holdout_y = None
+        self.train_y_hat = []
+        self.train_y = []
+        self.holdout_y_hat = []
+        self.holdout_y = []
         self.performance_data = {}
 
     def train_model(self):
@@ -86,9 +86,17 @@ class Trainer:
         self.holdout_y = self.review_catalogue.get_holdout_y().tolist()
 
         input_data = self.get_feature_data()
-
-        self.train_y_hat = self.model(from_numpy(input_data['train_features'])).tolist()
-        self.holdout_y_hat = self.model(from_numpy(input_data['holdout_features'])).tolist()
+        batch_size = self.config.model_config.batch_size
+        train_features = np.array_split(input_data['train_features'],
+                                        int(input_data['train_features'].shape[0] / batch_size)
+                                        + 1)
+        holdout_features = np.array_split(input_data['holdout_features'],
+                                          int(input_data['holdout_features'].shape[0] / batch_size)
+                                          + 1)
+        for batch in train_features:
+            self.train_y_hat += self.model(from_numpy(batch)).tolist()
+        for batch in holdout_features:
+            self.holdout_y_hat += self.model(from_numpy(batch)).tolist()
 
     def get_feature_data(self):
         #TODO: Split out into a separate training data class

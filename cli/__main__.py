@@ -4,6 +4,7 @@ from trainer.trainer_config import TrainerConfig
 import argparse
 from time import time
 
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 time_id = str(int(time()))
 

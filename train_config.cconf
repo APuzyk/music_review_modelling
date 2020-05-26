@@ -13,6 +13,6 @@
       "model_type": "TextCNN", 
       "ngram_filters": [2, 3, 4],
       "batch_size": 128,
-      "epochs": 1
+      "epochs": 10
     }
 }
