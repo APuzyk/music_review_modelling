@@ -1,5 +1,5 @@
-from models.text_cnn_wide_and_deep import TextCNNWideAndDeep
-from models.text_cnn import TextCNN
+from .text_cnn_wide_and_deep import TextCNNWideAndDeep
+from .text_cnn import TextCNN
 #from models.text_snn import TextSNN
 #from models.text_lstm import TextLSTM
 

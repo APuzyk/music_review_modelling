@@ -1,6 +1,6 @@
 import logging
-from trainer.trainer import Trainer
-from trainer.trainer_config import TrainerConfig
+from .trainer.trainer import Trainer
+from .trainer.trainer_config import TrainerConfig
 import argparse
 from time import time
 
@@ -24,7 +24,7 @@ logger.addHandler(c_handler)
 logger.addHandler(f_handler)
 
 
-def main():
+def test():
     parser = argparse.ArgumentParser("A module for creating text neural networks for music reviews")
     parser.add_argument("-c", "--config", help="The config yaml to train the model", type=str, dest="config")
     parser.add_argument("-t", "--train", help="Are we training?  If not we'll be predicting", type=bool, default=True,
@@ -36,7 +36,3 @@ def main():
     if args.train:
         t = Trainer(config)
         t.train_model()
-
-
-if __name__ == '__main__':
-    main()

@@ -1,5 +1,5 @@
-from interfaces.sqllite_interface import MusicReviewInterface
-from interfaces.word_vec_interface import WordVecInterface
+from ..interfaces.sqllite_interface import MusicReviewInterface
+from ..interfaces.word_vec_interface import WordVecInterface
 import numpy as np
 import random
 import logging

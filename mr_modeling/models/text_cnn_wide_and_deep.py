@@ -1,6 +1,6 @@
 import torch.nn as nn
 from torch import from_numpy, flatten, cat, tanh
-from models.text_nn import TextNN
+from .text_nn import TextNN
 
 
 class TextCNNWideAndDeep(TextNN):

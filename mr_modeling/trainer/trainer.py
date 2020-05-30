@@ -1,12 +1,12 @@
-from reviews.review_catalog import ReviewCatalogue
-from models.model_factory import ModelFactory
+from ..reviews.review_catalog import ReviewCatalogue
+from ..models.model_factory import ModelFactory
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 from torch import from_numpy
-from trainer.trainer_config import TrainerConfig
+from ..trainer.trainer_config import TrainerConfig
 from sklearn.metrics import auc, precision_recall_curve, roc_curve, average_precision_score
-from helpers.helpers import sort_l_x_by_l_y, one_hot
+from ..helpers.helpers import sort_l_x_by_l_y, one_hot
 import os
 import json
 import logging
@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 class Trainer:
 
     def __init__(self, config):
-        self.logger = logging.getLogger("music_review_modeling.trainer.trainer.Trainer")
+        self.logger = logging.getLogger("mr_modeling.trainer.trainer.Trainer")
         print(self.logger)
         self.logger.info("Creating Trainer")
         self.config = config
@@ -59,7 +59,7 @@ class Trainer:
         train_y = [from_numpy(a) for a in train_y]
 
         for epoch in range(epochs):
-            self.logger.info(f"Epoch {epoch} of {epochs}.")
+            self.logger.info(f"Epoch {epoch+1} of {epochs}.")
             self.logger.info(f"Running {len(train_y)} batches...")
             running_loss = 0.0
             i = 0
@@ -135,7 +135,7 @@ class Trainer:
         to_run = {'train': [np.array(self.holdout_y), np.array(self.holdout_y_hat)],
                   'holdout': [[np.array(self.train_y), np.array(self.train_y_hat)]]}
 
-        for k, y_s in to_run.item():
+        for k, y_s in to_run.items():
             fpr = dict()
             tpr = dict()
             roc_auc = dict()

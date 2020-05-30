@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='music_review_modeling',
+    name='mr_modeling',
     version='0.0.1',
     url='https://github.com/APuzyk/music_review_modelling',
     python_requires='>=3.5',
@@ -9,7 +9,7 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'music_review_modeling=cli.__main__:main',
+            'mr_modeling=mr_modeling.cli:test',
         ],
     }
 )
