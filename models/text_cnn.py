@@ -20,6 +20,7 @@ class TextCNN(TextNN):
         self.fc1 = nn.Linear(c2d_out_dim, 100)
         self.dropout = nn.Dropout(p=0.2)
         self.fc2 = nn.Linear(100, 2)
+        self.softmax = nn.Softmax(dim=1)
 
         self.model_type = 'TextCNN'
 
@@ -56,5 +57,6 @@ class TextCNN(TextNN):
         x = tanh(self.fc1(x))
         x = self.dropout(x)
         x = tanh(self.fc2(x))
+        x = self.softmax(x)
 
         return x

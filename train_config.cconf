@@ -12,7 +12,8 @@
       "val_split": 0.2, 
       "model_type": "TextCNN", 
       "ngram_filters": [2, 3, 4],
-      "batch_size": 128,
-      "epochs": 10
+      "batch_size": 64,
+      "epochs": 3,
+      "lr":0.001
     }
 }

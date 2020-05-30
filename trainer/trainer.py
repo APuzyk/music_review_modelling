@@ -6,7 +6,7 @@ import numpy as np
 from torch import from_numpy
 from trainer.trainer_config import TrainerConfig
 from sklearn.metrics import auc, precision_recall_curve
-from helpers.helpers import sort_l_x_by_l_y
+from helpers.helpers import sort_l_x_by_l_y, one_hot
 import os
 import json
 import logging
@@ -48,10 +48,10 @@ class Trainer:
     def optimize_model(self):
         epochs = self.config.model_config.epochs
         batch_size = self.config.model_config.batch_size
-        criterion = nn.CrossEntropyLoss()
-        optimizer = optim.Adam(self.model.parameters())
+        criterion = nn.MSELoss()
+        optimizer = optim.Adam(self.model.parameters(), lr=self.config.model_config.lr)
         train_features = self.get_feature_data()['train_features']
-        train_y = self.review_catalogue.get_train_y()
+        train_y = one_hot(self.review_catalogue.get_train_y())
         train_features = np.array_split(train_features, int(train_features.shape[0] / batch_size) + 1)
         train_features = [from_numpy(a) for a in train_features]
         train_y = np.array_split(train_y, int(train_y.shape[0] / batch_size) + 1)
@@ -68,7 +68,7 @@ class Trainer:
 
                 # forward + backward + optimize
                 outputs = self.model(x)
-                loss = criterion(outputs, y)
+                loss = criterion(outputs, y.float())
                 loss.backward()
                 optimizer.step()
 
@@ -82,6 +82,7 @@ class Trainer:
                 i += 1
 
     def get_predictions(self):
+        #self.model.eval()
         self.train_y = self.review_catalogue.get_train_y().tolist()
         self.holdout_y = self.review_catalogue.get_holdout_y().tolist()
 
@@ -155,8 +156,8 @@ class Trainer:
         f.close()
 
     @staticmethod
-    def get_pos_values(l):
-        return [i[1] for i in l]
+    def get_pos_values(binary_outcome):
+        return [i[1] for i in binary_outcome]
 
     def save_predictions(self, dir):
         train_file = os.path.join(dir, str(self.review_catalogue.uuid) + '_' + 'train_predictions.csv')

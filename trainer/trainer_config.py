@@ -19,6 +19,7 @@ class ModelConfig:
         self.ngram_filters = config['ngram_filters']
         self.batch_size = config['batch_size']
         self.epochs = config['epochs']
+        self.lr = config['lr']
         self.is_test = is_test
 
 
