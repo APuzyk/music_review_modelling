@@ -5,11 +5,12 @@ import torch.optim as optim
 import numpy as np
 from torch import from_numpy
 from trainer.trainer_config import TrainerConfig
-from sklearn.metrics import auc, precision_recall_curve
+from sklearn.metrics import auc, precision_recall_curve, roc_curve, average_precision_score
 from helpers.helpers import sort_l_x_by_l_y, one_hot
 import os
 import json
 import logging
+import matplotlib.pyplot as plt
 
 
 class Trainer:
@@ -120,21 +121,70 @@ class Trainer:
         train_y = self.train_y
         holdout_y_hat = self.get_pos_values(self.holdout_y_hat)
         holdout_y = self.holdout_y
-        self.performance_data['auc_train'] = auc(sorted(train_y_hat),
-                                                 sort_l_x_by_l_y(train_y,
-                                                                 train_y_hat))
-
-        self.performance_data['auc_holdout'] = auc(sorted(holdout_y_hat),
-                                                   sort_l_x_by_l_y(holdout_y,
-                                                                   holdout_y_hat))
 
         self.performance_data['p_r_curve_train'] = self.create_p_r_dict(precision_recall_curve(train_y,
                                                                                                train_y_hat))
 
         self.performance_data['p_r_curve_holdout'] = self.create_p_r_dict(precision_recall_curve(holdout_y,
                                                                                                  holdout_y_hat))
-
+        self.calc_roc_and_auc()
+        self.calc_precision_recall()
         self.save_performance_data()
+
+    def calc_roc_and_auc(self):
+        to_run = {'train': [np.array(self.holdout_y), np.array(self.holdout_y_hat)],
+                  'holdout': [[np.array(self.train_y), np.array(self.train_y_hat)]]}
+
+        for k, y_s in to_run.item():
+            fpr = dict()
+            tpr = dict()
+            roc_auc = dict()
+            for i in range(len(set(y_s[0]))):
+                fpr[i], tpr[i], _ = roc_curve(y_s[0][:, i], y_s[1][:, i])
+                roc_auc[i] = auc(fpr[i], tpr[i])
+
+            # Compute micro-average ROC curve and ROC area
+            fpr["micro"], tpr["micro"], _ = roc_curve(y_s[0].ravel(), y_s[1].ravel())
+            roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
+            plt.figure()
+            lw = 2
+            plt.plot(fpr[1], tpr[1], color='darkorange',
+                     lw=lw, label='ROC curve (area = %0.2f)' % roc_auc[1])
+            plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+            plt.xlim([0.0, 1.0])
+            plt.ylim([0.0, 1.05])
+            plt.xlabel('False Positive Rate')
+            plt.ylabel('True Positive Rate')
+            plt.title('Receiver operating characteristic')
+            plt.legend(loc="lower right")
+            plt.savefig(os.path.join(self.config.data_dir, f'roc_{k}.png'))
+            self.performance_data[f"auc_{k}"] = roc_auc[1]
+
+    def calc_precision_recall(self):
+        to_run = {'train': [self.train_y, self.get_pos_values(self.train_y_hat)],
+                  'holdout': [self.holdout_y, self.get_pos_values(self.holdout_y_hat)]}
+        for k, y_s in to_run.items():
+
+            self.performance_data[f'p_r_curve_{k}'] = self.create_p_r_dict(precision_recall_curve(y_s[0],
+                                                                                                  y_s[1]))
+
+            self.performance_data[f'avg_precision_micro_{k}'] = average_precision_score(y_s[0], y_s[1], average="micro")
+            plt.figure()
+            lw = 2
+            plt.plot(self.performance_data[f'p_r_curve_{k}']['recall'],
+                     self.performance_data[f'p_r_curve_{k}']['precision'],
+                     color='darkorange',
+                     lw=lw, label='Average precision score, micro-averaged over all classes: {0:0.2f}'
+                     .format(self.performance_data[f'avg_precision_micro_{k}']))
+            plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+            plt.xlim([0.0, 1.0])
+            plt.ylim([0.0, 1.05])
+            plt.xlabel('Recall')
+            plt.ylabel('Precision')
+            plt.title('Precision Recall Curve')
+            plt.legend(loc="lower right")
+
+            plt.savefig(os.path.join(self.config.data_dir_save, f'precision_recall_{k}.png'))
 
     @staticmethod
     def create_p_r_dict(prc):
@@ -151,7 +201,7 @@ class Trainer:
             print("\t" + str(v))
 
         o = json.dumps(self.performance_data)
-        f = open(self.config.data_dir + "/performance_{}.json".format(self.config.time_id), "w+")
+        f = open(self.config.data_dir_save + "/performance.json", "w+")
         f.write(o)
         f.close()
 
