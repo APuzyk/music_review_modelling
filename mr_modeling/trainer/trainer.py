@@ -43,7 +43,8 @@ class Trainer:
         self.optimize_model()
 
         self.get_predictions()
-        self.save_predictions(self.config.data_dir)
+        self.logger.info(f"Saving data in {self.config.data_dir_save}")
+        self.save_predictions(self.config.data_dir_save)
         self.get_performance_data()
 
     def optimize_model(self):
@@ -54,11 +55,8 @@ class Trainer:
         train_features = self.get_feature_data()['train_features']
         train_y = one_hot(self.review_catalogue.get_train_y())
 
-
-
         for epoch in range(epochs):
             self.logger.info(f"Epoch {epoch+1} of {epochs}.")
-            self.logger.info(f"Running {len(train_y)} batches...")
             self.logger.info("Shuffling for epoch...")
             permutation = np.random.permutation(train_y.shape[0])
             train_features = np.take(train_features, permutation, axis=0, out=train_features)
@@ -70,6 +68,7 @@ class Trainer:
             train_y_tensors = np.array_split(train_y, int(train_y.shape[0] / batch_size) + 1)
             train_y_tensors = [from_numpy(a) for a in train_y_tensors]
 
+            self.logger.info(f"Running {len(train_y_tensors)} batches...")
             running_loss = 0.0
             i = 0
             for x, y in zip(train_features_tensors, train_y_tensors):
@@ -166,7 +165,7 @@ class Trainer:
             plt.ylabel('True Positive Rate')
             plt.title('Receiver operating characteristic')
             plt.legend(loc="lower right")
-            plt.savefig(os.path.join(self.config.data_dir, f'roc_{k}.png'))
+            plt.savefig(os.path.join(self.config.data_dir_save, f'roc_{k}.png'))
             self.performance_data[f"auc_{k}"] = roc_auc[1]
 
     def calc_precision_recall(self):
@@ -205,10 +204,6 @@ class Trainer:
         return o
 
     def save_performance_data(self):
-        for k, v in self.performance_data.items():
-            print("data for: " + k + "\n")
-            print("\t" + str(v))
-
         o = json.dumps(self.performance_data)
         f = open(self.config.data_dir_save + "/performance.json", "w+")
         f.write(o)

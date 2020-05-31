@@ -12,7 +12,8 @@ class TextCNN(TextNN):
 
         # create layers
         self.embedding = nn.Embedding(embedding_mat.shape[0], embedding_mat.shape[1])
-        self.create_embedding_layer(from_numpy(embedding_mat))
+        # self.create_embedding_layer(from_numpy(embedding_mat))
+        self.embedding.weight.data.copy_(from_numpy(embedding_mat))
 
         self.ngram_filters = ngram_filters
         c2d_out_dim = self.create_conv_layers(ngram_filters)
@@ -24,10 +25,10 @@ class TextCNN(TextNN):
 
         self.model_type = 'TextCNN'
 
-    def create_embedding_layer(self, embedding_mat):
-        self.embedding = nn.Embedding(embedding_mat.shape[0], embedding_mat.shape[1])
-        self.embedding.weight.data.copy_(embedding_mat)
-        self.embedding.requires_grad_(requires_grad=False)
+    # def create_embedding_layer(self, embedding_mat):
+    #     self.embedding = nn.Embedding(embedding_mat.shape[0], embedding_mat.shape[1])
+    #     self.embedding.weight.data.copy_(embedding_mat)
+    #     self.embedding.requires_grad_(requires_grad=False)
 
     def create_conv_layers(self, ngram_filters):
         out_dim = 0
