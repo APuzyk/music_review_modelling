@@ -5,15 +5,18 @@ from .text_nn import TextNN
 
 class TextCNN(TextNN):
 
-    def __init__(self, text_input_size, embedding_mat, ngram_filters=[3, 4, 5]):
+    def __init__(self, text_input_size, embedding_mat, ngram_filters=[3, 4, 5], use_cuda=False):
         super(TextCNN, self).__init__()
+
+        self.use_cuda = use_cuda
+        self.get_device()
 
         self.text_input_size = text_input_size
 
         # create layers
         self.embedding = nn.Embedding(embedding_mat.shape[0], embedding_mat.shape[1])
         # self.create_embedding_layer(from_numpy(embedding_mat))
-        self.embedding.weight.data.copy_(from_numpy(embedding_mat))
+        self.embedding.weight.data.copy_(from_numpy(embedding_mat).to(device=self.device))
 
         self.ngram_filters = ngram_filters
         c2d_out_dim = self.create_conv_layers(ngram_filters)
@@ -44,6 +47,7 @@ class TextCNN(TextNN):
 
     def forward(self, x):
         batch_size = x.shape[0]
+        x.to(device=self.device)
         x = self.embedding(x)
         x = x.view(batch_size, 1, self.text_input_size, self.embedding.embedding_dim)
         layers = []

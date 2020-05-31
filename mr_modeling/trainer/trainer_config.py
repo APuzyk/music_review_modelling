@@ -20,6 +20,7 @@ class ModelConfig:
         self.batch_size = config['batch_size']
         self.epochs = config['epochs']
         self.lr = config['lr']
+        self.use_cuda = config.get('use_cuda')
         self.is_test = is_test
 
 

@@ -1,13 +1,21 @@
 import torch.nn as nn
 import numpy as np
 import torch.optim as optim
-from torch import from_numpy
+from torch import from_numpy, device, cuda
 
 
 class TextNN(nn.Module):
     def __init__(self):
         super(TextNN, self).__init__()
         self.model = None
+        self.use_cuda = None
+        self.device = None
+
+    def get_device(self):
+        if self.use_cuda and cuda.is_available():
+            self.device = device('cuda')
+        else:
+            self.device = device('cpu')
 
     def build_model(self, params):
         pass
