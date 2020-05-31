@@ -53,17 +53,26 @@ class Trainer:
         optimizer = optim.Adam(self.model.parameters(), lr=self.config.model_config.lr)
         train_features = self.get_feature_data()['train_features']
         train_y = one_hot(self.review_catalogue.get_train_y())
-        train_features = np.array_split(train_features, int(train_features.shape[0] / batch_size) + 1)
-        train_features = [from_numpy(a) for a in train_features]
-        train_y = np.array_split(train_y, int(train_y.shape[0] / batch_size) + 1)
-        train_y = [from_numpy(a) for a in train_y]
+
+
 
         for epoch in range(epochs):
             self.logger.info(f"Epoch {epoch+1} of {epochs}.")
             self.logger.info(f"Running {len(train_y)} batches...")
+            self.logger.info("Shuffling for epoch...")
+            permutation = np.random.permutation(train_y.shape[0])
+            train_features = np.take(train_features, permutation, axis=0, out=train_features)
+            train_y = np.take(train_y, permutation, axis=0, out=train_y)
+
+            self.logger.info("Splitting for epoch")
+            train_features_tensors = np.array_split(train_features, int(train_features.shape[0] / batch_size) + 1)
+            train_features_tensors = [from_numpy(a) for a in train_features_tensors]
+            train_y_tensors = np.array_split(train_y, int(train_y.shape[0] / batch_size) + 1)
+            train_y_tensors = [from_numpy(a) for a in train_y_tensors]
+
             running_loss = 0.0
             i = 0
-            for x, y in zip(train_features, train_y):
+            for x, y in zip(train_features_tensors, train_y_tensors):
                 # zero the parameter gradients
                 optimizer.zero_grad()
 
@@ -132,14 +141,14 @@ class Trainer:
         self.save_performance_data()
 
     def calc_roc_and_auc(self):
-        to_run = {'train': [np.array(self.holdout_y), np.array(self.holdout_y_hat)],
-                  'holdout': [[np.array(self.train_y), np.array(self.train_y_hat)]]}
+        to_run = {'train': [one_hot(np.array(self.holdout_y)), np.array(self.holdout_y_hat)],
+                  'holdout': [one_hot(np.array(self.train_y)), np.array(self.train_y_hat)]}
 
         for k, y_s in to_run.items():
             fpr = dict()
             tpr = dict()
             roc_auc = dict()
-            for i in range(len(set(y_s[0]))):
+            for i in range(2):
                 fpr[i], tpr[i], _ = roc_curve(y_s[0][:, i], y_s[1][:, i])
                 roc_auc[i] = auc(fpr[i], tpr[i])
 
