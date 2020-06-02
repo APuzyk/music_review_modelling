@@ -16,13 +16,13 @@ class ModelFactory:
                                        embedding_mat=self.params['embedding_mat'],
                                        wide_feature_num=self.params['wide_features'].shape[1],
                                        ngram_filters=self.params['ngram_filters'],
-                                       cuda=self.use_cuda)
+                                       use_cuda=self.use_cuda)
 
         elif self.model_type == 'TextCNN':
             model = TextCNN(text_input_size=self.params['content_mat'].shape[1],
                             embedding_mat=self.params['embedding_mat'],
                             ngram_filters=self.params['ngram_filters'],
-                            cuda=self.use_cuda)
+                            use_cuda=self.use_cuda)
         # elif self.model_type == 'TextSNN':
         #     raise NotImplementedError
         #     model = TextSNN(wide_feature_num=self.params['wide_features'].shape[1])

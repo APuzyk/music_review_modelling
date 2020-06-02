@@ -60,7 +60,7 @@ class TextCNN(TextNN):
             layers.append(l)
         x = cat(layers, 1)
         x = tanh(self.fc1(x))
-        x = self.dropout(x)
+        # x = self.dropout(x)
         x = tanh(self.fc2(x))
         x = self.softmax(x)
 
