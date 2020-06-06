@@ -15,7 +15,7 @@ class TextCNN(TextNN):
 
         # create layers
         self.embedding = nn.Embedding(embedding_mat.shape[0], embedding_mat.shape[1])
-        # self.create_embedding_layer(from_numpy(embedding_mat))
+        self.create_embedding_layer(from_numpy(embedding_mat))
         self.embedding.weight.data.copy_(from_numpy(embedding_mat).to(device=self.device))
 
         self.ngram_filters = ngram_filters
@@ -28,10 +28,10 @@ class TextCNN(TextNN):
 
         self.model_type = 'TextCNN'
 
-    # def create_embedding_layer(self, embedding_mat):
-    #     self.embedding = nn.Embedding(embedding_mat.shape[0], embedding_mat.shape[1])
-    #     self.embedding.weight.data.copy_(embedding_mat)
-    #     self.embedding.requires_grad_(requires_grad=False)
+    def create_embedding_layer(self, embedding_mat):
+        self.embedding = nn.Embedding(embedding_mat.shape[0], embedding_mat.shape[1])
+        self.embedding.weight.data.copy_(embedding_mat)
+        self.embedding.requires_grad_(requires_grad=False)
 
     def create_conv_layers(self, ngram_filters):
         out_dim = 0
@@ -60,7 +60,7 @@ class TextCNN(TextNN):
             layers.append(l)
         x = cat(layers, 1)
         x = tanh(self.fc1(x))
-        # x = self.dropout(x)
+        x = self.dropout(x)
         x = tanh(self.fc2(x))
         x = self.softmax(x)
 

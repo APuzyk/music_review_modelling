@@ -91,7 +91,7 @@ class Trainer:
                 i += 1
 
     def get_predictions(self):
-        #self.model.eval()
+        self.model.eval()
         self.train_y = self.review_catalogue.get_train_y().tolist()
         self.holdout_y = self.review_catalogue.get_holdout_y().tolist()
 
@@ -140,8 +140,8 @@ class Trainer:
         self.save_performance_data()
 
     def calc_roc_and_auc(self):
-        to_run = {'train': [one_hot(np.array(self.holdout_y)), np.array(self.holdout_y_hat)],
-                  'holdout': [one_hot(np.array(self.train_y)), np.array(self.train_y_hat)]}
+        to_run = {'holdout': [one_hot(np.array(self.holdout_y)), np.array(self.holdout_y_hat)],
+                  'train': [one_hot(np.array(self.train_y)), np.array(self.train_y_hat)]}
 
         for k, y_s in to_run.items():
             fpr = dict()
