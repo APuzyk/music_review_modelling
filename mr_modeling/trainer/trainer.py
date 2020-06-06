@@ -1,16 +1,19 @@
-from ..reviews.review_catalog import ReviewCatalogue
-from ..models.model_factory import ModelFactory
-import torch.nn as nn
-import torch.optim as optim
-import numpy as np
-from torch import from_numpy
-from ..trainer.trainer_config import TrainerConfig
-from sklearn.metrics import auc, precision_recall_curve, roc_curve, average_precision_score
-from ..helpers.helpers import sort_l_x_by_l_y, one_hot
-import os
 import json
 import logging
+import os
+import pickle
+from math import inf
+
 import matplotlib.pyplot as plt
+import numpy as np
+import torch.nn as nn
+import torch.optim as optim
+from sklearn.metrics import auc, precision_recall_curve, roc_curve, average_precision_score
+from torch import from_numpy
+
+from ..helpers.helpers import one_hot
+from ..models.model_factory import ModelFactory
+from ..reviews.review_catalog import ReviewCatalogue
 
 
 class Trainer:
@@ -20,7 +23,9 @@ class Trainer:
         print(self.logger)
         self.logger.info("Creating Trainer")
         self.config = config
+
         self.review_catalogue = ReviewCatalogue(self.config.data_config)
+
         self.model = None
         self.train_y_hat = []
         self.train_y = []
@@ -29,13 +34,12 @@ class Trainer:
         self.performance_data = {}
 
     def train_model(self):
-        self.logger.info("Preprocessing reviews")
-        self.review_catalogue.preprocess_reviews()
+        self.review_catalogue.prepare_reviews()
+
         self.logger.info("Creating Model Object")
-        mf = ModelFactory(params={'content_mat': self.review_catalogue.content_mat,
-                                  'embedding_mat': self.review_catalogue.word_mat,
-                                  'wide_features': self.review_catalogue.metadata_mat,
-                                  'ngram_filters': self.config.model_config.ngram_filters},
+        mf = ModelFactory(params={'text_length': self.review_catalogue.get_text_length(),
+                                  'embedding_mat': self.review_catalogue.get_word_mat(),
+                                  'wide_features': self.review_catalogue.get_metadata_dim()},
                           model_config=self.config.model_config)
 
         self.model = mf.build_model()
@@ -56,7 +60,7 @@ class Trainer:
         train_y = one_hot(self.review_catalogue.get_train_y())
 
         for epoch in range(epochs):
-            self.logger.info(f"Epoch {epoch+1} of {epochs}.")
+            self.logger.info(f"Epoch {epoch + 1} of {epochs}.")
             self.logger.info("Shuffling for epoch...")
             permutation = np.random.permutation(train_y.shape[0])
             train_features = np.take(train_features, permutation, axis=0, out=train_features)
@@ -70,6 +74,9 @@ class Trainer:
 
             self.logger.info(f"Running {len(train_y_tensors)} batches...")
             running_loss = 0.0
+            epoch_loss = 0.0
+            min_lost = inf
+            best_model = None
             i = 0
             for x, y in zip(train_features_tensors, train_y_tensors):
                 # zero the parameter gradients
@@ -83,12 +90,15 @@ class Trainer:
 
                 # print statistics
                 running_loss += loss.item()
+                epoch_loss += loss.item()
 
                 if i % 50 == 49:  # print every 50 mini-batches
                     self.logger.info('[%d, %5d] loss: %.3f' %
                                      (epoch + 1, i + 1, running_loss / 50))
                     running_loss = 0.0
                 i += 1
+            epoch_loss = epoch_loss / sum([y.shape[0] for y in train_y_tensors])
+            self.logger.info(f"Epoch loss is f{epoch_loss}")
 
     def get_predictions(self):
         self.model.eval()
@@ -109,7 +119,7 @@ class Trainer:
             self.holdout_y_hat += self.model(from_numpy(batch)).tolist()
 
     def get_feature_data(self):
-        #TODO: Split out into a separate training data class
+        # TODO: Split out into a separate training data class
         if self.model.model_type == "TextCNNWideAndDeep":
             return {'train_features': [self.review_catalogue.get_train_content(),
                                        self.review_catalogue.get_train_metadata()],
@@ -172,7 +182,6 @@ class Trainer:
         to_run = {'train': [self.train_y, self.get_pos_values(self.train_y_hat)],
                   'holdout': [self.holdout_y, self.get_pos_values(self.holdout_y_hat)]}
         for k, y_s in to_run.items():
-
             self.performance_data[f'p_r_curve_{k}'] = self.create_p_r_dict(precision_recall_curve(y_s[0],
                                                                                                   y_s[1]))
 
