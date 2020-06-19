@@ -52,10 +52,10 @@ class TextCNN(TextNN):
         x = x.view(batch_size, 1, self.text_input_size, self.embedding.embedding_dim)
         layers = []
         for i in self.ngram_filters:
-            l = self.__getattr__(f"c2d_ngram_{i}")(x)
+            l = getattr(self, f"c2d_ngram_{i}")(x)
             l = tanh(l)
             l = l.permute(0, 3, 1, 2)
-            l = self.__getattr__(f"pool_ngram_{i}")(l)
+            l = getattr(self, f"pool_ngram_{i}")(l)
             l = flatten(l, 1)
             layers.append(l)
         x = cat(layers, 1)
