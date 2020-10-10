@@ -1,34 +1,48 @@
-# from keras.layers import Input, Embedding, SpatialDropout1D, LSTM, Dense
-# from keras import Model
-# from models.text_nn import TextNN
-#
-#
-# class TextLSTM(TextNN):
-#
-#     def __init__(self, text_input_size, embedding_mat):
-#         super(TextLSTM, self).__init__()
-#
-#         self.text_input_size = text_input_size
-#         self.embedding_mat = embedding_mat
-#
-#         self.model_type = 'TextLSTM'
-#         self.build_model()
-#
-#     def build_model(self):
-#         inputs = Input(shape=(self.text_input_size,))
-#
-#         word_mat = Embedding(self.embedding_mat.shape[0],
-#                              self.embedding_mat.shape[1],
-#                              weights=[self.embedding_mat],
-#                              input_length=(self.text_input_size,), trainable=False)(inputs)
-#
-#         word_mat = SpatialDropout1D(0.2)(word_mat)
-#
-#         word_mat = LSTM(100, dropout=0.2, recurrent_dropout=0.2)(word_mat)
-#
-#         predictions = Dense(2, activation='softmax')(word_mat)
-#
-#         model = Model(inputs=inputs, outputs=predictions)
-#
-#         model.compile(optimizer='adam', loss='categorical_crossentropy')
-#         self.model = model
+import torch.nn as nn
+from torch import from_numpy, flatten, cat, tanh
+from .text_nn import TextNN
+
+
+class TextLSTM(TextNN):
+
+    def __init__(self, text_input_size, embedding_mat, hidden_dim=64, use_cuda=False):
+        super(TextLSTM, self).__init__()
+
+        self.use_cuda = use_cuda
+        self.get_device()
+
+        self.text_input_size = text_input_size
+
+        # create layers
+        self.embedding = nn.Embedding(embedding_mat.shape[0], embedding_mat.shape[1])
+        self.create_embedding_layer(from_numpy(embedding_mat))
+        self.embedding.weight.data.copy_(from_numpy(embedding_mat).to(device=self.device))
+
+        self.lstm = nn.LSTM(input_size=int(self.embedding.embedding_dim), 
+                            hidden_size=hidden_dim, 
+                            num_layers=2, 
+                            bidirectional=True)
+
+        
+
+        self.fc1 = nn.Linear(hidden_dim, 2)
+        self.softmax = nn.Softmax(dim=1)
+
+        self.model_type = 'TextLSTM'
+
+    def create_embedding_layer(self, embedding_mat):
+        self.embedding = nn.Embedding(embedding_mat.shape[0], embedding_mat.shape[1])
+        self.embedding.weight.data.copy_(embedding_mat)
+        self.embedding.requires_grad_(requires_grad=False)
+
+    def forward(self, x):
+        batch_size = x.shape[0]
+        x.to(device=self.device)
+        x = self.embedding(x)
+        x = x.view(batch_size, 1, self.text_input_size, self.embedding.embedding_dim)
+        
+        x = self.lstm(x)
+        x = tanh(self.fc1(x))
+        x = self.softmax(x)
+
+        return x
