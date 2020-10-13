@@ -28,8 +28,9 @@ class ModelFactory:
         #     raise NotImplementedError
         #     model = TextSNN(wide_feature_num=self.params['wide_features'].shape[1])
         elif self.model_type == 'TextLSTM':
-            model = TextLSTM(text_input_size=self.params['content_mat'].shape[1],
-                             embedding_mat=self.params['embedding_mat'])
+            model = TextLSTM(text_input_size=self.params['text_length'],
+                             embedding_mat=self.params['embedding_mat'],
+                             use_cuda=self.use_cuda)
         else:
             raise NotImplementedError("Models of type %s are not yet implemented" % self.model_type)
 

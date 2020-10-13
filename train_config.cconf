@@ -4,16 +4,19 @@
     {
       "w2v_fn": "GoogleNews-vectors-negative300.bin",
       "music_review_fn": "database.sqlite",
-      "music_review_type": "sqlite3"
+      "music_review_type": "sqlite3",
+      "save_review_data_dict": true,
+      "review_data_dict_file": "/home/apuzyk/Projects/music_reviews/data/1591456844/review_data_dict.p"
     },
   "model_config": 
     {
       "holdout_split": 0.2, 
       "val_split": 0.2, 
-      "model_type": "TextCNN", 
+      "model_type": "TextLSTM", 
       "ngram_filters": [2, 3, 4],
       "batch_size": 64,
-      "epochs": 3,
-      "lr":0.001
+      "epochs": 25,
+      "lr":0.0001,
+      "use_cuda": false
     }
 }
