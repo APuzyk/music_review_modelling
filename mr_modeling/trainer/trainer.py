@@ -48,7 +48,7 @@ class Trainer:
 
         self.get_predictions()
         self.logger.info(f"Saving data in {self.config.data_dir_save}")
-        self.save_predictions(self.config.data_dir_save)
+        self.save_predictions()
         self.get_performance_data()
 
     def optimize_model(self):
@@ -75,8 +75,9 @@ class Trainer:
             self.logger.info(f"Running {len(train_y_tensors)} batches...")
             running_loss = 0.0
             epoch_loss = 0.0
-            min_lost = inf
-            best_model = None
+            # TODO: Update to save best version of the model
+            # min_lost = inf
+            # best_model = None
             i = 0
             for x, y in zip(train_features_tensors, train_y_tensors):
                 # zero the parameter gradients
@@ -222,9 +223,9 @@ class Trainer:
     def get_pos_values(binary_outcome):
         return [i[1] for i in binary_outcome]
 
-    def save_predictions(self, dir):
-        train_file = os.path.join(dir, str(self.review_catalogue.uuid) + '_' + 'train_predictions.csv')
-        holdout_file = os.path.join(dir, str(self.review_catalogue.uuid) + '_' + 'holdout_predictions.csv')
+    def save_predictions(self):
+        train_file = os.path.join(self.config.data_dir_save, 'train_predictions.csv')
+        holdout_file = os.path.join(self.config.data_dir_save, 'holdout_predictions.csv')
 
         with open(train_file, 'w+') as f:
             f.write('y,y_hat\n')
