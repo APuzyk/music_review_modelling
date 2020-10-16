@@ -24,6 +24,7 @@ class TextLSTM(TextNN):
                             hidden_size=self.hidden_dim, 
                             num_layers=2, 
                             bidirectional=bidirectional,
+                            dropout=0.5,
                             batch_first=True)
 
         
