@@ -7,7 +7,7 @@ class WordVecInterface:
         self.loc = loc
 
     def load_vecs_for_dict(self, word_dict):
-        wv = KeyedVectors.load_word2vec_format(self.loc, binary=True)
+        wv = self.load_w2v_format()
         word_mat = np.random.uniform(-0.25, 0.25, (len(word_dict) + 1, 300))
         for k, v in word_dict.items():
             try:
@@ -18,3 +18,6 @@ class WordVecInterface:
             word_mat[v] = vec
 
         return word_mat
+
+    def load_w2v_format(self, binary=True):
+        return KeyedVectors.load_word2vec_format(self.loc, binary=True)

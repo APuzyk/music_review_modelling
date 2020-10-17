@@ -1,6 +1,9 @@
 import unittest
 from unittest.mock import MagicMock
 from mr_modeling.interfaces.sqllite_interface import MusicReviewInterface
+from mr_modeling.interfaces.word_vec_interface import WordVecInterface
+from gensim.models import KeyedVectors
+import numpy as np
 
 
 class TestSqliteInterface(unittest.TestCase):
@@ -94,3 +97,23 @@ class TestSqliteInterface(unittest.TestCase):
         }}
         self.assertEqual(mri.pull_review_metadata('test', False),
                          expect)
+
+
+class TestWordVecInterface(unittest.TestCase):
+    def test_load_w2v(self):
+        wvi = WordVecInterface('test')
+        rv = {'this': [0.1 for _ in range(300)],
+              'is': [-0.1 for _ in range(300)]
+              }
+        ru = np.random.uniform(0, 0, (4, 300))
+        wvi.load_w2v_format = MagicMock(return_value=rv)
+        np.random.uniform = MagicMock(return_value=ru)
+
+        word_dict = {'this': 0, 'is': 3, 'a': 2, 'test': 1}
+
+        expect = ru
+        expect[0, ] = rv['this']
+        expect[3, ] = rv['is']
+
+        self.assertTrue(np.any(wvi.load_vecs_for_dict(word_dict) ==
+                               expect))

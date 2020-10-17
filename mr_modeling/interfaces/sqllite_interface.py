@@ -36,10 +36,10 @@ class MusicReviewInterface:
             WHERE uuid = '%s'
         """ % uuid
         query = query + ' limit 500' if is_test else query
-        l = self.get_query_results(query)
+        results = self.get_query_results(query)
         o = {}
-        for i in l:
-            o[i[0]] = [int(j) for j in i[1].split('~')]
+        for row in results:
+            o[row[0]] = [int(word_idx) for word_idx in row[1].split('~')]
         return o
 
     def pull_word_dict(self, uuid):
