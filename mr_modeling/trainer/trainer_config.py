@@ -13,6 +13,7 @@ class DataConfig:
         self.save_dir = save_dir
         self.review_data_dict_file = config.get('review_data_dict_file')
 
+
 class ModelConfig:
     def __init__(self, config, is_test):
         self.val_split = config['val_split']
