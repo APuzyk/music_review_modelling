@@ -14,6 +14,7 @@ from torch import from_numpy
 from ..helpers.helpers import one_hot
 from ..models.model_factory import ModelFactory
 from ..reviews.review_catalog import ReviewCatalogue
+from predictor.predictor import Predictor
 
 
 class Trainer:
@@ -50,6 +51,7 @@ class Trainer:
         self.logger.info(f"Saving data in {self.config.data_dir_save}")
         self.save_predictions()
         self.get_performance_data()
+        self.save_model()
 
     def optimize_model(self):
         epochs = self.config.model_config.epochs
@@ -236,3 +238,7 @@ class Trainer:
             f.write('y,y_hat\n')
             for i in range(len(self.holdout_y_hat)):
                 f.write(str(self.holdout_y[i]) + ',' + str(self.holdout_y_hat[i][1]) + '\n')
+
+    def save_predictor(self):
+        predictor = Predictor(self)
+        predictor.save(self.config)
