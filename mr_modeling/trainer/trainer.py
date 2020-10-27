@@ -14,7 +14,7 @@ from torch import from_numpy
 from ..helpers.helpers import one_hot
 from ..models.model_factory import ModelFactory
 from ..reviews.review_catalog import ReviewCatalogue
-from predictor.predictor import Predictor
+from ..predictor.predictor import Predictor
 
 
 class Trainer:
@@ -51,7 +51,7 @@ class Trainer:
         self.logger.info(f"Saving data in {self.config.data_dir_save}")
         self.save_predictions()
         self.get_performance_data()
-        self.save_model()
+        self.save_predictor()
 
     def optimize_model(self):
         epochs = self.config.model_config.epochs
@@ -241,4 +241,4 @@ class Trainer:
 
     def save_predictor(self):
         predictor = Predictor(self)
-        predictor.save(self.config)
+        pickle.dump(predictor, open(os.path.join(self.config.data_dir_save, 'predictor.p'), 'wb'))

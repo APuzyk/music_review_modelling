@@ -1,15 +1,16 @@
-from trainer.trainer import Trainer
+from torch import from_numpy
 import re
 import numpy as np
 
 
 class Predictor:
-    def __init__(self, trainer: Trainer):
+    def __init__(self, trainer):
         self.word_dict = trainer.review_catalogue.review_data_dict['word_dict']
         self.model = trainer.model
     
-    def get_prediction(self, textg: str):
+    def get_prediction(self, text: str):
         text_vec = self.get_text_vector(text)
+        return self.model(from_numpy(text_vec))
     
     def get_text_vector(self, text):
         text = self.clean_text(text)
@@ -34,11 +35,3 @@ class Predictor:
             [word_indexes.append(0) for _ in range(self.model.text_input_size - len(word_indexes))]
         
         return np.array(word_indexes)
-
-
-
-if len(vec) >= max_len:
-                start_position = len(vec) - max_len
-                vec = vec[start_position:]
-            else:
-                [vec.append(0) for i in range(max_len - len(vec))]
