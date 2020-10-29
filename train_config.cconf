@@ -6,7 +6,7 @@
       "music_review_fn": "database.sqlite",
       "music_review_type": "sqlite3",
       "save_review_data_dict": true,
-      "review_data_dict_file": "/home/apuzyk/Projects/music_reviews/data/1591456844/review_data_dict.p"
+      "_review_data_dict_file": "/home/apuzyk/Projects/music_reviews/data/1591456844/review_data_dict.p"
     },
   "model_config": 
     {
