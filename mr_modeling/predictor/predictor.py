@@ -15,9 +15,11 @@ class Predictor:
     def get_text_vector(self, text):
         text = self.clean_text(text)
         #TODO: how do we handle unknown values
-        indexs = [self.word_dict.get(word, 0) for word in text]
+        indexes = [self.word_dict.get(word, 0) for word in text]
+        indexes = self.vectorize_text(indexes)
+        indexes = [indexes] # add dim for batch
 
-        return self.vectorize_text(indexs)
+        return indexes
         
     
     def clean_text(self, text):
